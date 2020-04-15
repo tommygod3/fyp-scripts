@@ -17,6 +17,12 @@ from elasticsearch import Elasticsearch, exceptions, helpers
 
 
 def run_and_index(directory, metadata={}):
+    with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
+        config = json.load(f)
+    
+    if not metadata:
+        with open(f"{directory}/metadata.json") as reader:
+            metadata = json.load(reader)
     # setup patches index
     tommy_host = "search-tommygod3-es-b46x7xorl7h6jqnisw5ruua63y.eu-west-2.es.amazonaws.com"
     tommy_index = "fyp-patches"
@@ -35,16 +41,9 @@ def run_and_index(directory, metadata={}):
     }
     tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
 
-    deque(helpers.parallel_bulk(client=tommy_es, actions=get_data(directory, metadata, tommy_index), chunk_size=500), maxlen=0)
+    deque(helpers.parallel_bulk(client=tommy_es, actions=get_data(directory, metadata, tommy_index, config), chunk_size=500), maxlen=0)
 
-def get_data(directory, metadata, index_name):
-    with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
-        config = json.load(f)
-    
-    if not metadata:
-        with open(f"{directory}/metadata.json") as reader:
-            metadata = json.load(reader)
-    
+def get_data(directory, metadata, index_name, config):
     with tf.Session() as sess:
         iterator = BigEarthNet(
             f"{directory}/record.tfrecord",
