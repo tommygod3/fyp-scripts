@@ -11,7 +11,8 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from shapely.geometry import Point
 from geopandas import GeoSeries, GeoDataFrame
 import tensorflow as tf
-from elasticsearch import Elasticsearch, exceptions
+from elasticsearch import Elasticsearch, exceptions, helpers
+from collections import deque
 from geojson import Polygon
 from geojson_rewind import rewind
 
@@ -37,7 +38,7 @@ def run_and_index(directory, metadata={}):
     }
     tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
 
-    tommy_es.bulk(index=tommy_index, body=get_data(directory, metadata, tommy_index))
+    deque(helpers.parallel_bulk(client=tommy_es, actions=get_data(directory, metadata, tommy_index), chunk_size=50), maxlen=0) 
 
 def get_data(directory, metadata, index_name):
     with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
@@ -83,8 +84,10 @@ def get_data(directory, metadata, index_name):
                 data["labels"] = results[index]
                 data["location"] = patch_location(directory, data["patch"])
 
-                yield { "index" : { "_index" : index_name } }
-                yield data
+                yield {
+                    "_index" : "fyp-patches"
+                    "_source": data
+                }
 
 def patch_location(directory, patch_name):
     patch_dir = f"{directory}/patches/{patch_name}"
