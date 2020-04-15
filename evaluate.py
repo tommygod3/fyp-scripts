@@ -65,7 +65,7 @@ def eval_model(directory, metadata={}):
 def patch_location(directory, patch_name):
     patch_dir = f"{directory}/patches/{patch_name}"
     subprocess.call(f"gdal_polygonize.py {patch_dir}/{patch_name}_B02.tif {patch_dir}/location", shell=True)
-    shapefile = GeoSeries.from_file(f"{patch_dir}/location/location.shp")
+    shapefile = GeoSeries.from_file(f"{patch_dir}/location/out.shp")
     coordinates = shapefile.to_crs(epsg=4326)
     bbox = coordinates.total_bounds
     p1 = Point(bbox[0], bbox[3])
