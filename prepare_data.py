@@ -91,7 +91,7 @@ if __name__ == "__main__":
                         help = 'dir path')
     args = parser.parse_args()
 
-    absolute_dir = pathlib.Path(args.directory).absolute()
+    absolute_dir = pathlib.Path(args.directory).resolve()
     
     create_tfrecord(absolute_dir)
     

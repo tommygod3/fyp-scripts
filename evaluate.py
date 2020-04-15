@@ -86,6 +86,6 @@ if __name__ == "__main__":
                         help = "dir path")
     args = parser.parse_args()
 
-    absolute_dir = pathlib.Path(args.directory).absolute()
+    absolute_dir = pathlib.Path(args.directory).resolve()
 
     eval_model(absolute_dir)
