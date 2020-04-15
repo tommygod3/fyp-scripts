@@ -59,10 +59,10 @@ def eval_model(directory, metadata={}):
                 data.update(metadata)
                 data["patch"] = patch.decode("utf-8")
                 data["labels"] = results[index]
-                data["location"] = patch_location(data["patch"])
+                data["location"] = patch_location(directory, data["patch"])
                 print(data)
 
-def patch_location(patch_name):
+def patch_location(directory, patch_name):
     patch_dir = f"{directory}/patches/{patch_name}"
     subprocess.call(f"gdal_polygonize.py {patch_dir}/{patch_name}_B02.tif {patch_dir}/location", shell=True)
     shapefile = GeoSeries.from_file(f"{patch_dir}/location/location.shp")
