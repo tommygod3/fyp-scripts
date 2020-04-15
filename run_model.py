@@ -10,10 +10,33 @@ import importlib
 from sklearn.preprocessing import MultiLabelBinarizer
 from shapely.geometry import Point
 from geopandas import GeoSeries, GeoDataFrame
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3" 
 import tensorflow as tf
+from elasticsearch import Elasticsearch, exceptions
 
-def eval_model(directory, metadata={}):
+
+
+def run_and_index(directory, metadata={}):
+    # setup patches index
+    tommy_host = "search-tommygod3-es-b46x7xorl7h6jqnisw5ruua63y.eu-west-2.es.amazonaws.com"
+    tommy_index = "fyp-patches"
+    tommy_es = Elasticsearch([
+        {"host": tommy_host, "port": 443, "use_ssl": True, "timeout": 60, "max_retries": 10, "retry_on_timeout": True},
+    ])
+    # create index if doesn't exist
+    mapping = {
+        "mappings": {
+            "properties": {
+                "location": {
+                    "type": "geo_shape"
+                }
+            }
+        }
+    }
+    tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
+
+    tommy_es.parallel_bulk(index=tommy_index, body=get_data(directory, metadata), chunk_size=500)
+
+def get_data(directory, metadata):
     with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
         config = json.load(f)
     
@@ -61,7 +84,13 @@ def eval_model(directory, metadata={}):
                 data["patch"] = patch.decode("utf-8")
                 data["labels"] = results[index]
                 data["location"] = patch_location(directory, data["patch"])
-                print(data)
+
+                yield {
+                    "index": {
+                        "_index": index_name
+                    }
+                }
+                yield data
 
 def patch_location(directory, patch_name):
     patch_dir = f"{directory}/patches/{patch_name}"
@@ -89,4 +118,4 @@ if __name__ == "__main__":
 
     absolute_dir = pathlib.Path(args.directory).resolve()
 
-    eval_model(absolute_dir)
+    run_and_index(absolute_dir)

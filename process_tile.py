@@ -2,7 +2,8 @@ import argparse
 import glob, os, re, pathlib, subprocess, shutil, json
 
 import prepare_data
-import evaluate
+import run_model
+
 
 # Process tile
 def process_tile(directory):
@@ -16,7 +17,6 @@ def process_tile(directory):
     # Get names
     level_2a_dir = glob.glob(f"{directory}/S2*L2A*")[0]
     level_2a_filename = level_2a_dir.split(".SAFE")[0].split("/")[-1]
-    level_2a_filename = "_".join(level_2a_filename.split("_")[:3])
     # mkdir and retile
     pathlib.Path(f"{directory}/all").mkdir(parents=True, exist_ok=True)
     print("10m bands")
@@ -64,13 +64,8 @@ def process_tile(directory):
     # Create tfrecord from patches
     prepare_data.create_tfrecord(directory)
 
-    # Run model
-    with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
-        model_config = json.load(f)
-
-    model_config["tf_record_file"] = f"{directory}/record.tfrecord"
-
-    evaluate.eval_model(model_config)
+    # Run model and index results
+    run_model.run_and_index(directory, metadata)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=
