@@ -85,7 +85,7 @@ def get_data(directory, metadata, index_name):
                 data["location"] = patch_location(directory, data["patch"])
 
                 yield {
-                    "_index" : "fyp-patches"
+                    "_index" : "fyp-patches",
                     "_source": data
                 }
 
