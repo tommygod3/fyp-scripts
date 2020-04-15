@@ -81,7 +81,7 @@ def get_data(directory, metadata, index_name):
                 data = {}
                 data.update(metadata)
                 data["labels"] = results[index]
-                data["location"] = patch_location(directory, data["patch"])
+                data["location"] = patch_location(directory, patch.decode("utf-8"))
 
                 yield {
                     "_index" : "fyp-patches",
