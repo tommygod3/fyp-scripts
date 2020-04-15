@@ -35,9 +35,9 @@ def run_and_index(directory, metadata={}):
     }
     tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
 
-    deque(helpers.parallel_bulk(client=tommy_es, actions=get_data(directory, metadata), chunk_size=500), maxlen=0)
+    deque(helpers.parallel_bulk(client=tommy_es, actions=get_data(directory, metadata, tommy_index), chunk_size=500), maxlen=0)
 
-def get_data(directory, metadata):
+def get_data(directory, metadata, index_name):
     with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
         config = json.load(f)
     
