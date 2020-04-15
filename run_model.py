@@ -12,8 +12,8 @@ from shapely.geometry import Point
 from geopandas import GeoSeries, GeoDataFrame
 import tensorflow as tf
 from elasticsearch import Elasticsearch, exceptions
-
-
+from geojson import Polygon
+from geojson_rewind import rewind
 
 def run_and_index(directory, metadata={}):
     if not metadata:
@@ -100,8 +100,10 @@ def patch_location(directory, patch_name):
     np2 = (p2.coords.xy[0][0], p2.coords.xy[1][0])
     np3 = (p3.coords.xy[0][0], p3.coords.xy[1][0])
     np4 = (p4.coords.xy[0][0], p4.coords.xy[1][0])
-    coordinates = [np1, np2, np3, np4]
-    return {"type": "Polygon", "orientation": "counterclockwise", "coordinates": coordinates}
+    coordinates = [[np1, np2, np3, np4, np1]]
+    geo_json = rewind(Polygon(coordinates))
+    geo_json["orientation"] = "counterclockwise"
+    return geo_json
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=
