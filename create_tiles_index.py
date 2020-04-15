@@ -48,6 +48,9 @@ def get_cloud(path):
 # Process and reindex matches
 def reindex(hits):
     for hit in hits:
+        exists_query = {"query": {"terms": {"_id": [hit["_id"]]}}}
+        if tommy_es.search(index=tommy_index, body=exists_query)["hits"]["total"]:
+            continue
         short = {}
         short["path"] = f'{hit["_source"]["file"]["directory"]}/{hit["_source"]["file"]["data_file"]}'
         short["cloud_cover"] = get_cloud(short["path"])
@@ -82,8 +85,6 @@ while scroll_size > 0:
         tommy_es.bulk(index=tommy_index, body=reindex(data["hits"]["hits"]))
     except exceptions.RequestError as e:
         print(e)
-    #limit
-    break
     
     data = ceda_es.scroll(scroll_id=sid, scroll=scroll_time)
 
