@@ -1,3 +1,9 @@
+# IDE 
+.vscode
+
+# generated files
+MTD_TL.xml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
