@@ -58,10 +58,6 @@ def reindex(hits):
         short["datetime"] = hit["_source"]["temporal"]["start_time"]
         short["location"] = hit["_source"]["spatial"]["geometries"]["full_search"]
 
-        # If it will be labelled:
-        # create dir and write data to dir/metadata.json
-        # call "bsub process_tile -d dir"
-
         yield {
             "index": {
                 "_index": tommy_index,
