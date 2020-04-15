@@ -1,7 +1,8 @@
 # credit to eval.py
 
 import numpy as np
-import subprocess, os
+import math
+import subprocess, os, glob
 import argparse, pathlib
 from BigEarthNet import BigEarthNet
 from utils import get_metrics
@@ -70,23 +71,26 @@ def get_data(directory, metadata, index_name):
         mlb = MultiLabelBinarizer(config["labels"])
         mlb.fit(config["labels"])
 
-        batch_dict = sess.run(iterator_ins)
-            
-        sess_res = sess.run([prediction], feed_dict=model.feed_dict(batch_dict))
+        num_patches = len(glob.glob(f"{directory}/patches/*"))
+        for batch_number in range(math.ceil(num_patches / config["batch_size"])):
+            try:
+                batch_dict = sess.run(iterator_ins)
+                sess_res = sess.run([prediction], feed_dict=model.feed_dict(batch_dict))
+                results = mlb.inverse_transform(sess_res[0])
+            except tf.errors.OutOfRangeError:
+                pass
 
-        results = mlb.inverse_transform(sess_res[0])
+            for index, patch in enumerate(batch_dict["patch_name"].values):
+                if results[index]:
+                    data = {}
+                    data.update(metadata)
+                    data["labels"] = results[index]
+                    data["location"] = patch_location(directory, patch.decode("utf-8"))
 
-        for index, patch in enumerate(batch_dict["patch_name"].values):
-            if results[index]:
-                data = {}
-                data.update(metadata)
-                data["labels"] = results[index]
-                data["location"] = patch_location(directory, patch.decode("utf-8"))
-
-                yield {
-                    "_index" : "fyp-patches",
-                    "_source": data
-                }
+                    yield {
+                        "_index" : "fyp-patches",
+                        "_source": data
+                    }
 
 def patch_location(directory, patch_name):
     patch_dir = f"{directory}/patches/{patch_name}"

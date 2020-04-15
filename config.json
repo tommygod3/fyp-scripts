@@ -1,6 +1,6 @@
 {
     "model_name": "ResNet152",
-    "batch_size": 32,
+    "batch_size": 46,
     "label_type": "BigEarthNet-19",
     "model_file": "/home/users/tgodfrey/fyp/bigearthnet-models-tf/model_weights/BigEarthNet-19_labels/ResNet152/ResNet152_BigEarthNet-19_labels",
     "labels": [
