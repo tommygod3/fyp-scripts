@@ -11,14 +11,11 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from shapely.geometry import Point
 from geopandas import GeoSeries, GeoDataFrame
 import tensorflow as tf
-from elasticsearch import Elasticsearch, exceptions, helpers
+from elasticsearch import Elasticsearch, exceptions
 
 
 
 def run_and_index(directory, metadata={}):
-    with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
-        config = json.load(f)
-    
     if not metadata:
         with open(f"{directory}/metadata.json") as reader:
             metadata = json.load(reader)
@@ -40,9 +37,11 @@ def run_and_index(directory, metadata={}):
     }
     tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
 
-    tommy_es.bulk(index=tommy_index, body=get_data(directory, metadata, tommy_index, config), chunk_size=500)
+    tommy_es.bulk(index=tommy_index, body=get_data(directory, metadata, tommy_index))
 
-def get_data(directory, metadata, index_name, config):
+def get_data(directory, metadata, index_name):
+    with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
+        config = json.load(f)
     with tf.Session() as sess:
         iterator = BigEarthNet(
             f"{directory}/record.tfrecord",
@@ -84,11 +83,7 @@ def get_data(directory, metadata, index_name, config):
                 data["labels"] = results[index]
                 data["location"] = patch_location(directory, data["patch"])
 
-                yield {
-                    "index": {
-                        "_index": index_name
-                    }
-                }
+                yield { "index" : { "_index" : index_name } }
                 yield data
 
 def patch_location(directory, patch_name):

@@ -58,12 +58,7 @@ def reindex(hits):
         short["datetime"] = hit["_source"]["temporal"]["start_time"]
         short["location"] = hit["_source"]["spatial"]["geometries"]["full_search"]
 
-        yield {
-            "index": {
-                "_index": tommy_index,
-                '_id': hit["_id"]
-            }
-        }
+        yield { "index": { "_index" : tommy_index, "_id" : hit["_id"] } }
         yield short
 
 
