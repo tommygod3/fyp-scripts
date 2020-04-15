@@ -41,22 +41,10 @@ def process_tile(directory):
     for x in range(1, 93):
         for y in range(1, 93):
             pathlib.Path(f"{directory}/patches/{level_2a_filename}_{x}_{y}").mkdir(parents=True, exist_ok=True)
-            # limit
-            if y > 9:
-                break
-        # limit
-        if x > 9:
-            break
     
     for filename in glob.iglob(f"{directory}/all/*"):
         filename = filename.split("/")[-1]
         match = re.search(regex, filename)
-        # limit
-        if int(match.group('x')) > 10:
-            continue
-        # limit
-        if int(match.group('y')) > 10:
-            continue
         new_directory = f"{level_2a_filename}_{int(match.group('x'))}_{int(match.group('y'))}"
         new_filename = f"{new_directory}_{match.group('band')}.tif"
         shutil.move(f"{directory}/all/{filename}", f"{directory}/patches/{new_directory}/{new_filename}")
