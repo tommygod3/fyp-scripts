@@ -1,7 +1,6 @@
 # credit to eval.py
 
 import numpy as np
-import tensorflow as tf
 import subprocess, os
 import argparse, pathlib
 from BigEarthNet import BigEarthNet
@@ -11,6 +10,8 @@ import importlib
 from sklearn.preprocessing import MultiLabelBinarizer
 from shapely.geometry import Point
 from geopandas import GeoSeries, GeoDataFrame
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3" 
+import tensorflow as tf
 
 def eval_model(directory, metadata={}):
     with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
@@ -64,7 +65,7 @@ def eval_model(directory, metadata={}):
 
 def patch_location(directory, patch_name):
     patch_dir = f"{directory}/patches/{patch_name}"
-    subprocess.call(f"gdal_polygonize.py {patch_dir}/{patch_name}_B02.tif {patch_dir}/location", shell=True)
+    subprocess.call(f"gdal_polygonize.py {patch_dir}/{patch_name}_B02.tif {patch_dir}/location", shell=True, stdout=subprocess.DEVNULL)
     shapefile = GeoSeries.from_file(f"{patch_dir}/location/out.shp")
     coordinates = shapefile.to_crs(epsg=4326)
     bbox = coordinates.total_bounds
