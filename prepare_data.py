@@ -4,6 +4,7 @@ import argparse
 import os
 import csv
 import json
+import pathlib
 
 import gdal
 import tensorflow as tf

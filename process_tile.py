@@ -17,6 +17,7 @@ def process_tile(directory):
     # Get names
     level_2a_dir = glob.glob(f"{directory}/S2*L2A*")[0]
     level_2a_filename = level_2a_dir.split(".SAFE")[0].split("/")[-1]
+    level_2a_filename = "_".join(level_2a_filename.split("_")[:3])
     # mkdir and retile
     pathlib.Path(f"{directory}/all").mkdir(parents=True, exist_ok=True)
     print("10m bands")
