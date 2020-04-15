@@ -11,7 +11,8 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from shapely.geometry import Point
 from geopandas import GeoSeries, GeoDataFrame
 import tensorflow as tf
-from elasticsearch import Elasticsearch, exceptions
+from collections import deque
+from elasticsearch import Elasticsearch, exceptions, helpers
 
 
 
@@ -34,7 +35,7 @@ def run_and_index(directory, metadata={}):
     }
     tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
 
-    tommy_es.parallel_bulk(index=tommy_index, body=get_data(directory, metadata), chunk_size=500)
+    deque(helpers.parallel_bulk(client=tommy_es, actions=get_data(directory, metadata), chunk_size=500), maxlen=0)
 
 def get_data(directory, metadata):
     with open("/home/users/tgodfrey/fyp/fyp-scripts/config.json", "r") as f:
