@@ -15,10 +15,13 @@ band_names = ['B01', 'B02', 'B03', 'B04', 'B05',
               'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12']
 
 def fix_incomplete_data(band, dimension):
-    if len(band) == dimension:
-        return np.ravel(band)
+    raveled = np.ravel(band)
+    if len(raveled) == dimension * dimension:
+        return raveled
+    elif len(band) != dimension:
+        return np.pad(raveled, (0, ((dimension * dimension) - len(raveled))))
     else:
-        return np.pad(np.ravel(band), (0, ((dimension*dimension) - len(np.ravel(band)))))
+        return np.ravel(np.vstack([np.pad(row, (0, dimension - len(row))) for row in bad1]))
 
 def prep_example(bands, labels, labels_multi_hot, patch_name):
     return tf.train.Example(
@@ -78,7 +81,6 @@ def create_tfrecord(directory):
         
         BigEarthNet_19_labels = []
         BigEarthNet_19_labels_multi_hot = np.zeros(19,dtype=int)
-        
         example = prep_example(
             bands,
             BigEarthNet_19_labels,
