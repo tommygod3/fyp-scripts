@@ -14,34 +14,37 @@ import numpy as np
 band_names = ['B01', 'B02', 'B03', 'B04', 'B05',
               'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12']
 
+def fix_incomplete_data(band, dimension):
+    return np.pad(np.ravel(band), (0, ((dimension*dimension) - len(np.ravel(band)))))
+
 def prep_example(bands, labels, labels_multi_hot, patch_name):
     return tf.train.Example(
             features=tf.train.Features(
                 feature={
                     'B01': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B01']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B01'], 20))),
                     'B02': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B02']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B02'], 120))),
                     'B03': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B03']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B03'], 120))),
                     'B04': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B04']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B04'], 120))),
                     'B05': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B05']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B05'], 60))),
                     'B06': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B06']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B06'], 60))),
                     'B07': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B07']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B07'], 60))),
                     'B08': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B08']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B08'], 120))),
                     'B8A': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B8A']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B8A'], 60))),
                     'B09': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B09']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B09'], 20))),
                     'B11': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B11']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B11'], 60))),
                     'B12': tf.train.Feature(
-                        int64_list=tf.train.Int64List(value=np.ravel(bands['B12']))),
+                        int64_list=tf.train.Int64List(value=fix_incomplete_data(bands['B12'], 60))),
                     'BigEarthNet-19_labels': tf.train.Feature(
                         bytes_list=tf.train.BytesList(
                             value=[i.encode('utf-8') for i in labels])),
@@ -54,7 +57,6 @@ def prep_example(bands, labels, labels_multi_hot, patch_name):
 def create_tfrecord(directory):
     root_folder = f"{directory}/patches/"
     patch_names = os.listdir(root_folder)
-
 
     TFRecord_writer = tf.python_io.TFRecordWriter(f"{directory}/record.tfrecord")
     progress_bar = tf.contrib.keras.utils.Progbar(target = len(patch_names))
@@ -75,7 +77,7 @@ def create_tfrecord(directory):
         BigEarthNet_19_labels_multi_hot = np.zeros(19,dtype=int)
         
         example = prep_example(
-            bands, 
+            bands,
             BigEarthNet_19_labels,
             BigEarthNet_19_labels_multi_hot,
             patch_name
