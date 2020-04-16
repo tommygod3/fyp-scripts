@@ -9,11 +9,10 @@ from utils import get_metrics
 import json
 import importlib
 from sklearn.preprocessing import MultiLabelBinarizer
-from shapely.geometry import Point
-from geopandas import GeoSeries, GeoDataFrame
 import tensorflow as tf
 from elasticsearch import Elasticsearch, exceptions, helpers
 from collections import deque
+import gdal, osr
 from geojson import Polygon
 from geojson_rewind import rewind
 
@@ -93,19 +92,36 @@ def get_data(directory, metadata, index_name):
                     }
 
 def patch_location(directory, patch_name):
-    patch_dir = f"{directory}/patches/{patch_name}"
-    subprocess.call(f"gdal_polygonize.py {patch_dir}/{patch_name}_B02.tif {patch_dir}/location", shell=True, stdout=subprocess.DEVNULL)
-    shapefile = GeoSeries.from_file(f"{patch_dir}/location/out.shp")
-    coordinates = shapefile.to_crs(epsg=4326)
-    bbox = coordinates.total_bounds
-    p1 = Point(bbox[0], bbox[3])
-    p2 = Point(bbox[2], bbox[3])
-    p3 = Point(bbox[2], bbox[1])
-    p4 = Point(bbox[0], bbox[1])
-    np1 = (p1.coords.xy[0][0], p1.coords.xy[1][0])
-    np2 = (p2.coords.xy[0][0], p2.coords.xy[1][0])
-    np3 = (p3.coords.xy[0][0], p3.coords.xy[1][0])
-    np4 = (p4.coords.xy[0][0], p4.coords.xy[1][0])
+    ds = gdal.Open(f"{directory}/patches/{patch_name}/{patch_name}_B01.tif")
+
+    old_cs = osr.SpatialReference()
+    old_cs.ImportFromWkt(ds.GetProjectionRef())
+    wgs84_wkt = """
+    GEOGCS["WGS 84",
+        DATUM["WGS_1984",
+            SPHEROID["WGS 84",6378137,298.257223563,
+                AUTHORITY["EPSG","7030"]],
+            AUTHORITY["EPSG","6326"]],
+        PRIMEM["Greenwich",0,
+            AUTHORITY["EPSG","8901"]],
+        UNIT["degree",0.01745329251994328,
+            AUTHORITY["EPSG","9122"]],
+        AUTHORITY["EPSG","4326"]]"""
+    new_cs = osr.SpatialReference()
+    new_cs .ImportFromWkt(wgs84_wkt)
+    
+    transform = osr.CoordinateTransformation(old_cs,new_cs) 
+    width = ds.RasterXSize
+    height = ds.RasterYSize
+    gt = ds.GetGeoTransform()
+    minx = gt[0]
+    miny = gt[3] + width*gt[4] + height*gt[5] 
+    maxx = gt[0] + width*gt[1] + height*gt[2]
+    maxy = gt[3]
+    np1 = transform.TransformPoint(minx, miny)[1::-1]
+    np2 = transform.TransformPoint(minx, maxy)[1::-1]
+    np3 = transform.TransformPoint(maxx, maxy)[1::-1]
+    np4 = transform.TransformPoint(maxx, miny)[1::-1]
     coordinates = [[np1, np2, np3, np4, np1]]
     geo_json = rewind(Polygon(coordinates))
     geo_json["orientation"] = "counterclockwise"
