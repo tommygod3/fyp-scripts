@@ -15,7 +15,10 @@ band_names = ['B01', 'B02', 'B03', 'B04', 'B05',
               'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12']
 
 def fix_incomplete_data(band, dimension):
-    return np.pad(np.ravel(band), (0, ((dimension*dimension) - len(np.ravel(band)))))
+    if len(band) == dimension:
+        return np.ravel(band)
+    else:
+        return np.pad(np.ravel(band), (0, ((dimension*dimension) - len(np.ravel(band)))))
 
 def prep_example(bands, labels, labels_multi_hot, patch_name):
     return tf.train.Example(
