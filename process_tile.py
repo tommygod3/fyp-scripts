@@ -21,20 +21,20 @@ def process_tile(directory):
     # mkdir and retile
     pathlib.Path(f"{directory}/all").mkdir(parents=True, exist_ok=True)
     print("10m bands")
-    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B02_10m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B03_10m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B04_10m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B08_10m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B02_10m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B03_10m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B04_10m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 120 120 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R10m/*_B08_10m.jp2", shell=True)
     print("20m bands")
-    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B05_20m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B06_20m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B07_20m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B8A_20m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B11_20m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B12_20m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B05_20m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B06_20m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B07_20m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B8A_20m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B11_20m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 60 60 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R20m/*_B12_20m.jp2", shell=True)
     print("60m bands")
-    subprocess.call(f"gdal_retile.py -ps 20 20 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R60m/*_B01_60m.jp2", shell=True)
-    subprocess.call(f"gdal_retile.py -ps 20 20 -of GTiff -targetDir {directory}/all/ {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R60m/*_B09_60m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 20 20 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R60m/*_B01_60m.jp2", shell=True)
+    subprocess.call(f"gdal_retile.py -ps 20 20 -of GTiff -targetDir {directory}/all/ -useDirForEachRow {directory}/S2*L2A*/GRANULE/*/IMG_DATA/R60m/*_B09_60m.jp2", shell=True)
 
     # Now reshuffle to dir per patch
     regex = r"^.+_(?P<band>\w+)_.+_(?P<x>\d+)_(?P<y>\d+).tif$"
@@ -43,12 +43,12 @@ def process_tile(directory):
         for y in range(1, 93):
             pathlib.Path(f"{directory}/patches/{level_2a_filename}_{x}_{y}").mkdir(parents=True, exist_ok=True)
     
-    for filename in glob.iglob(f"{directory}/all/*"):
-        filename = filename.split("/")[-1]
+    for path in glob.iglob(f"{directory}/0/*/*"):
+        filename = path.split("/")[-1]
         match = re.search(regex, filename)
         new_directory = f"{level_2a_filename}_{int(match.group('x'))}_{int(match.group('y'))}"
         new_filename = f"{new_directory}_{match.group('band')}.tif"
-        shutil.move(f"{directory}/all/{filename}", f"{directory}/patches/{new_directory}/{new_filename}")
+        shutil.move(f"{path}", f"{directory}/patches/{new_directory}/{new_filename}")
     
     # Create tfrecord from patches
     prepare_data.create_tfrecord(directory)
