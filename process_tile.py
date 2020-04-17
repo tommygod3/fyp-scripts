@@ -56,6 +56,9 @@ def process_tile(directory):
     # Run model and index results
     run_model.run_and_index(directory, metadata)
 
+    # Clean up
+    subprocess.call(f"rm -rf {directory}", shell=True)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=
         'This script takes a Sentinel2 tile and processes into patches and runs the model')

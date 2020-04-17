@@ -44,8 +44,8 @@ def process_all(directory):
         pathlib.Path(f"{directory}/{tile_name}").mkdir(parents=True, exist_ok=True)
         with open(f"{directory}/{tile_name}/metadata.json", "w") as writer:
             json.dump(metadata, writer)
-        subprocess.call(f"bsub -o {directory}/{tile_name}/%J.out -W 24:00 -q short-serial /home/users/tgodfrey/miniconda3/envs/fyp/bin/python /home/users/tgodfrey/fyp/fyp-scripts/process_tile.py -d {directory}/{tile_name}", shell=True)
-    
+        subprocess.call(f"bsub -o {directory}/{tile_name}/%J.out -W 3:00 -q short-serial /home/users/tgodfrey/miniconda3/envs/fyp/bin/python /home/users/tgodfrey/fyp/fyp-scripts/process_tile.py -d {directory}/{tile_name}", shell=True)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=
         'This script scrolls through tommy-es index and processes tiles with low cloud cover')
