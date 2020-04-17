@@ -21,7 +21,7 @@ def fix_incomplete_data(band, dimension):
     elif len(band) != dimension:
         return np.pad(raveled, (0, ((dimension * dimension) - len(raveled))))
     else:
-        return np.ravel(np.vstack([np.pad(row, (0, dimension - len(row))) for row in bad1]))
+        return np.ravel(np.vstack([np.pad(row, (0, dimension - len(row))) for row in band]))
 
 def prep_example(bands, labels, labels_multi_hot, patch_name):
     return tf.train.Example(
