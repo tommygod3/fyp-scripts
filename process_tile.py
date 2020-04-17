@@ -43,7 +43,7 @@ def process_tile(directory):
         for y in range(1, 93):
             pathlib.Path(f"{directory}/patches/{level_2a_filename}_{x}_{y}").mkdir(parents=True, exist_ok=True)
     
-    for path in glob.iglob(f"{directory}/0/*/*"):
+    for path in glob.iglob(f"{directory}/all/0/*/*"):
         filename = path.split("/")[-1]
         match = re.search(regex, filename)
         new_directory = f"{level_2a_filename}_{int(match.group('x'))}_{int(match.group('y'))}"
