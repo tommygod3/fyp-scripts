@@ -1,5 +1,5 @@
 import json, subprocess
-import pathlib
+import pathlib, argparse
 from elasticsearch import Elasticsearch, exceptions
 
 # setup index
@@ -37,10 +37,10 @@ data = tommy_es.search(index=tommy_index, body=query, size=1000, timeout="1m")
 def process_all(directory):
     for hit in data["hits"]["hits"]:
         metadata = {
-            "path": hit["path"],
-            "datetime": hit["datetime"]
+            "path": hit["_source"]["path"],
+            "datetime": hit["_source"]["datetime"]
         }
-        tile_name = hit["path"].split("/")[-1].split(".zip")[0]
+        tile_name = hit["_source"]["path"].split("/")[-1].split(".zip")[0]
         pathlib.Path(f"{directory}/{tile_name}").mkdir(parents=True, exist_ok=True)
         with open(f"{directory}/{tile_name}/metadata.json", "w") as writer:
             json.dump(metadata, writer)
