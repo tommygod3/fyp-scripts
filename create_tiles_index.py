@@ -1,14 +1,20 @@
 from elasticsearch import Elasticsearch, exceptions
 import json, subprocess
 
+# load environment config and set path vars
+file_path = os.path.realpath(__file__)
+directory_path = "/".join(file_path.split("/")[:-1])
+with open(f"{directory_path}/environment.json") as reader:
+    environment = json.load(reader)
+
 # setup indexes
-tommy_host = "search-tommygod3-es-b46x7xorl7h6jqnisw5ruua63y.eu-west-2.es.amazonaws.com"
+data_host = environment["elasticsearch_url"]
 ceda_host = "jasmin-es1.ceda.ac.uk"
 
-tommy_index = "fyp-tiles"
+data_index = "fyp-tiles"
 
-tommy_es = Elasticsearch([
-    {"host": tommy_host, "port": 443, "use_ssl": True, "timeout": 60, "max_retries": 10, "retry_on_timeout": True},
+data_es = Elasticsearch([
+    {"host": data_host, "port": 443, "use_ssl": True, "timeout": 60, "max_retries": 10, "retry_on_timeout": True},
 ])
 
 ceda_es = Elasticsearch([
@@ -25,7 +31,7 @@ mapping = {
         }
     }
 }
-tommy_es.indices.create(index=tommy_index, ignore=400, body=mapping)
+data_es.indices.create(index=data_index, ignore=400, body=mapping)
 
 # ceda-eo query
 query = {
@@ -49,7 +55,7 @@ def get_cloud(path):
 def reindex(hits):
     for hit in hits:
         exists_query = {"query": {"terms": {"_id": [hit["_id"]]}}}
-        if tommy_es.search(index=tommy_index, body=exists_query)["hits"]["total"]:
+        if data_es.search(index=data_index, body=exists_query)["hits"]["total"]:
             continue
         short = {}
         short["path"] = f'{hit["_source"]["file"]["directory"]}/{hit["_source"]["file"]["data_file"]}'
@@ -58,7 +64,7 @@ def reindex(hits):
         short["datetime"] = hit["_source"]["temporal"]["start_time"]
         short["location"] = hit["_source"]["spatial"]["geometries"]["full_search"]
 
-        yield { "index": { "_index" : tommy_index, "_id" : hit["_id"] } }
+        yield { "index": { "_index" : data_index, "_id" : hit["_id"] } }
         yield short
 
 
@@ -73,7 +79,7 @@ scroll_size = len(data["hits"]["hits"])
 while scroll_size > 0:
     print(f"Scrolling: {sid}")
     try:
-        tommy_es.bulk(index=tommy_index, body=reindex(data["hits"]["hits"]))
+        data_es.bulk(index=data_index, body=reindex(data["hits"]["hits"]))
     except exceptions.RequestError as e:
         print(e)
     

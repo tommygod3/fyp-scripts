@@ -1,0 +1,5 @@
+{
+    "elasticsearch_url": "search-tommygod3-es-b46x7xorl7h6jqnisw5ruua63y.eu-west-2.es.amazonaws.com",
+    "sen2cor_path": "/home/users/tgodfrey/Sen2Cor-02.08.00-Linux64/bin/L2A_Process",
+    "model_weights": "/home/users/tgodfrey/fyp/bigearthnet-models-tf/model_weights/BigEarthNet-19_labels/ResNet152/ResNet152_BigEarthNet-19_labels"
+}
