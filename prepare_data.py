@@ -1,4 +1,4 @@
-# credit to prepare_splits
+# Adapted from: https://gitlab.tubit.tu-berlin.de/rsim/bigearthnet-19-models/blob/93c3d398341a5ccc2c4f61d64e702901cd9340ab/prep_splits_BigEarthNet-19.py
 
 import argparse
 import os

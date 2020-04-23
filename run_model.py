@@ -1,4 +1,4 @@
-# credit to eval.py
+# Adapted from https://gitlab.tu-berlin.de/rsim/bigearthnet-models-tf/blob/cec5ae5eb0e55a0d15f24abd426b3158e6e8e130/eval.py
 
 import numpy as np
 import math
