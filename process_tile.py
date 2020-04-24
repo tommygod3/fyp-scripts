@@ -18,7 +18,7 @@ def process_tile(directory):
     # Unzip L1C into dir
     subprocess.call(f"unzip {metadata['path']} -d {directory}", shell=True)
     # sen2cor
-    subprocess.call(f"{environment["sen2cor_path"]} --cr_only {directory}/S2*L1C*.SAFE", shell=True)
+    subprocess.call(f"{environment['sen2cor_path']} --cr_only {directory}/S2*L1C*.SAFE", shell=True)
     # Get names
     level_2a_dir = glob.glob(f"{directory}/S2*L2A*")[0]
     level_2a_filename = level_2a_dir.split(".SAFE")[0].split("/")[-1]
