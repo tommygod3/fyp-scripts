@@ -44,7 +44,7 @@ def run_and_index(directory, metadata={}):
     }
     data_es.indices.create(index=data_index, ignore=400, body=mapping)
 
-    deque(helpers.parallel_bulk(client=data_es, actions=get_data(directory, metadata, data_index), chunk_size=50), maxlen=0)
+    deque(helpers.parallel_bulk(client=data_es, actions=get_data(directory, metadata, data_index), chunk_size=500), maxlen=0)
 
 def get_data(directory, metadata, index_name):
     with open(f"{directory_path}/config.json", "r") as f:
